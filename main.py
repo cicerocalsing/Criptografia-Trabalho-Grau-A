@@ -13,12 +13,22 @@ def menu():
     
     return opcao
 
-def opcoes(golomb, EliasGamma,Fibonacci, Huffman, opcao, exit):
+def opcoes(golomb, EliasGamma,Fibonacci, Huffman, opcao):
     if opcao == 1:
-        #Codificação golomb
+        # Codificação Golomb
         mensagem = input("\nDigite a mensagem que você gostaria de codificar em Golomb: ")
-        golombMensage = golomb.golombEncoder(mensagem)
-        print(golombMensage)
+        golombMensage, k = golomb.golombEncoder(mensagem)
+        print(f"Mensagem codificada: {golombMensage}")
+        
+        while True:
+            escolha = int(input("\n\nDIGITE O NÚMERO CORRESPONDENTE A OPÇÃO DESEJADA:\n1- DECODIFICAR MENSAGEM\n2- VOLTAR PARA O MENU\n"))
+            if escolha == 1:
+                golombDecodedMensage = golomb.golombDecoder(golombMensage, k)
+                print(f"Mensagem decodificada: {golombDecodedMensage}")
+            elif escolha == 2:
+                return True  # Voltar ao menu principal
+            else:
+                print("Opção inválida. Tente novamente.")
     elif opcao == 2:
         #Codificação Elias-gamma
         mensagem = input("\nDigite a mensagem que você gostaria de codificar em Elias-Gamma: ")
@@ -52,5 +62,5 @@ huffman = Huffman()
 exit=True
 while(exit):
     opcao = menu()
-    exit = opcoes(golomb, eliasgamma, fibonacci, huffman, opcao, exit)
+    exit = opcoes(golomb, eliasgamma, fibonacci, huffman, opcao)
 
