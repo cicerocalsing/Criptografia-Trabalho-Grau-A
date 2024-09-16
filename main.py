@@ -33,7 +33,17 @@ def opcoes(golomb, EliasGamma,Fibonacci, Huffman, opcao):
         #Codificação Elias-gamma
         mensagem = input("\nDigite a mensagem que você gostaria de codificar em Elias-Gamma: ")
         eliasGammaMensage = EliasGamma.EliasGammaEncoder(mensagem)
-        return eliasGammaMensage
+        print(f"Mensagem codificada: {eliasGammaMensage}")
+
+        while True:
+            escolha = int(input("\n\nDIGITE O NÚMERO CORRESPONDENTE A OPÇÃO DESEJADA:\n1- DECODIFICAR MENSAGEM\n2- VOLTAR PARA O MENU\n"))
+            if escolha == 1:
+                eliasGammaDecodedMessage = EliasGamma.EliasGammaDecoder(eliasGammaMensage)
+                print(f"Mensagem decodificada: {eliasGammaDecodedMessage}")
+            elif escolha == 2:
+                return True  # Voltar ao menu principal
+            else:
+                print("Opção inválida. Tente novamente.")
     elif opcao == 3:
         #Codificação Fibonacci/Zeckendorf
         mensagem = input("\nDigite a mensagem que você gostaria de codificar em Fibonacci: ")
