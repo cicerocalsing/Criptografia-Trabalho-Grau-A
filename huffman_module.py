@@ -1,7 +1,7 @@
 import heapq
 from collections import Counter
 
-class node: 
+class Node: 
     def __init__(self, frequencia, simbolo, esquerda=None, direita=None): 
         # frequency of symbol 
         self.frequencia = frequencia 
@@ -21,19 +21,19 @@ class node:
     def __lt__(self, nxt): 
         return self.frequencia < nxt.frequencia 
 
-class Huffman():
+class Huffman:
     def HuffmanEncoder(self, mensagem):
         charsArray, freqChars = counterOfChars(mensagem)
         nodes = []
 
         # aqui vamos colocar todos os nos para dentro do heap, com sua respectiva frequencia na palavra que queremos codificar
         for i in range(len(charsArray)):
-            heapq.heappush(nodes, node(freqChars[i], charsArray[i]))
+            heapq.heappush(nodes, Node(freqChars[i], charsArray[i]))
 
         # agora precisamos ajustar essa arvore/heap baseando-se na frequencia de cada letra na palavra
         # enquanto a lista de nos tiver algo, precisamos trabalhar
         # ao final deste while, teremos diversos nos (objetos) interligados atraves dos rights and lefts de cada objeto
-        while(len(nodes) > 1):
+        while len(nodes) > 1:
             # vamos buscar a menor frequencia (atraves da funcao __lt__ que definimos na classe)
             noEsquerda = heapq.heappop(nodes)
             noDireita = heapq.heappop(nodes)
@@ -43,7 +43,7 @@ class Huffman():
             noDireita.peso = '1'
 
             # agora vamos combinar os 2 nos para formar um novo node como pai destes e adicionar no array de nós que temos
-            novoNo = node(noEsquerda.frequencia+noDireita.frequencia, noEsquerda.simbolo+noDireita.simbolo, noEsquerda, noDireita)
+            novoNo = Node(noEsquerda.frequencia + noDireita.frequencia, noEsquerda.simbolo + noDireita.simbolo, noEsquerda, noDireita)
             heapq.heappush(nodes, novoNo)
         
         # Geração dos códigos de Huffman para cada caractere
@@ -54,7 +54,7 @@ class Huffman():
         # Codificação da mensagem original usando os códigos gerados
         encodedMessage = ''.join([huffmanCode[char] for char in mensagem])
         
-        return encodedMessage
+        return encodedMessage, raiz
     
     def gerarCodigo(self, node, currentCode, huffmanCode):
         # Se não houver filhos, estamos em uma folha
@@ -68,26 +68,22 @@ class Huffman():
         if node.direita:
             self.gerarCodigo(node.direita, currentCode + '1', huffmanCode)
 
-    def HuffmanDecoder(self, mensagem):
-        return "Decodifica em Huffman"
-    
-def printNodes(node, val=''): 
-  
-    # huffman code for current node 
-    newVal = val + str(node.huff) 
-  
-    # if node is not an edge node 
-    # then traverse inside it 
-    if(node.left): 
-        printNodes(node.left, newVal) 
-    if(node.right): 
-        printNodes(node.right, newVal) 
-  
-        # if node is edge node then 
-        # display its huffman code 
-    if(not node.left and not node.right): 
-        print(f"{node.symbol} -> {newVal}") 
+    def HuffmanDecoder(self, encodedMessage, raiz):
+        decodedMessage = ''
+        currentNode = raiz
 
+        for bit in encodedMessage:
+            if bit == '0':
+                currentNode = currentNode.esquerda
+            else:
+                currentNode = currentNode.direita
+            
+            # Se estivermos em uma folha, adicionamos o caractere à mensagem decodificada
+            if not currentNode.esquerda and not currentNode.direita:
+                decodedMessage += currentNode.simbolo
+                currentNode = raiz  # Retorna para a raiz para decodificar o próximo caractere
+
+        return decodedMessage
 
 def counterOfChars(mensagem):
     freq_dict = Counter(mensagem)
@@ -96,5 +92,10 @@ def counterOfChars(mensagem):
     return list(chars), list(freq)
 
 
+# Teste
 huff = Huffman()
-print(huff.HuffmanEncoder(""))
+encodedMessage, raiz = huff.HuffmanEncoder("teste")
+decodedMessage = huff.HuffmanDecoder(encodedMessage, raiz)
+
+print(encodedMessage)
+print(decodedMessage)
