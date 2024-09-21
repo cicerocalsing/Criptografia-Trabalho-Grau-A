@@ -90,12 +90,3 @@ def counterOfChars(mensagem):
     sorted_freq = sorted(freq_dict.items(), key=lambda x: x[1])
     chars, freq = zip(*sorted_freq)
     return list(chars), list(freq)
-
-
-# Teste
-huff = Huffman()
-encodedMessage, raiz = huff.HuffmanEncoder("teste")
-decodedMessage = huff.HuffmanDecoder(encodedMessage, raiz)
-
-print(encodedMessage)
-print(decodedMessage)
