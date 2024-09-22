@@ -20,22 +20,17 @@ def copiar_para_clipboard(text):
 # Function for encoding/decoding and updating history
 def executar_opcao(algoritmo, acao):
     mensagem = entrada_mensagem.get().strip()
-    k = k_entry.get().strip() if algoritmo == "Golomb" else None
 
     if not mensagem:
         messagebox.showerror("Erro", "Por favor, digite uma mensagem.")
         return
-    if algoritmo == "Golomb" and (not k or not k.isdigit()):
-        messagebox.showerror("Erro", "Por favor, insira um número válido para K.")
-        return
 
-    k = int(k) if k else None
     resultado_codificado = ""
     resultado_decodificado = ""
 
     if acao == "codificar":
-        if algoritmo == "Golomb" and k is not None:
-            resultado_codificado = golomb.golombEncoder(mensagem, k)
+        if algoritmo == "Golomb":
+            resultado_codificado = golomb.golombEncoder(mensagem)
         elif algoritmo == "Elias-Gamma":
             resultado_codificado = elias.EliasGammaEncoder(mensagem)
         elif algoritmo == "Fibonacci":
@@ -47,8 +42,8 @@ def executar_opcao(algoritmo, acao):
         copiar_button.config(command=lambda: copiar_para_clipboard(resultado_codificado))
 
     elif acao == "decodificar":
-        if algoritmo == "Golomb" and k is not None:
-            resultado_decodificado = golomb.golombDecoder(mensagem, k)
+        if algoritmo == "Golomb":
+            resultado_decodificado = golomb.golombDecoder(mensagem)
         elif algoritmo == "Elias-Gamma":
             resultado_decodificado = elias.EliasGammaDecoder(mensagem)
         elif algoritmo == "Fibonacci":
@@ -76,12 +71,6 @@ entrada_label.pack()
 
 entrada_mensagem = tk.Entry(janela, width=50)
 entrada_mensagem.pack()
-
-# Entry field for K (Golomb)
-k_label = tk.Label(janela, text="Valor de K (Golomb):")
-k_label.pack()
-k_entry = tk.Entry(janela, width=5)
-k_entry.pack()
 
 # Buttons to choose the algorithm and action
 algoritmo_var = tk.StringVar(value="Golomb")
