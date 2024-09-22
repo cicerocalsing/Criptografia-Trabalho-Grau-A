@@ -21,7 +21,6 @@ huffman_root = None
 def copiar_para_clipboard(text):
     janela.clipboard_clear()
     janela.clipboard_append(text)
-    messagebox.showinfo("Copiado!", "Mensagem copiada para a área de transferência.")
 
 # Function for encoding/decoding and updating history
 def executar_opcao(algoritmo, acao):
