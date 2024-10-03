@@ -5,8 +5,8 @@ class Golomb():
     def escolherK(self, ascii_list):
         # Calcula a média dos valores ASCII da mensagem
         media_ascii = np.mean(ascii_list)
-        # Escolhe k como a potência de 2 mais próxima da média ASCII dividida por 2
-        k = 2 ** int(np.log2(media_ascii / 2))
+        # Escolhe k como a potência de 2 mais próxima da média ASCII
+        k = 2 ** int(np.log2(media_ascii))
         return k
 
     def golombEncoder(self, mensagem):
