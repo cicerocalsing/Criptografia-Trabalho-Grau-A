@@ -17,11 +17,6 @@ current_algorithm = None
 golomb_k = None
 huffman_root = None
 
-# Function to copy text to the clipboard
-def copiar_para_clipboard(text):
-    janela.clipboard_clear()
-    janela.clipboard_append(text)
-
 # Function for encoding/decoding and updating history
 def executar_opcao(algoritmo, acao):
     global encoded_message, current_algorithm, golomb_k, huffman_root
@@ -35,12 +30,23 @@ def executar_opcao(algoritmo, acao):
     resultado_codificado = ""
     resultado_decodificado = ""
 
+    # Initialize k if needed
+    k = None
+    if algoritmo == "Golomb" and acao == "decodificar":
+        k_str = entrada_k.get().strip()
+        if not k_str:
+            messagebox.showerror("Erro", "Por favor, forneça o valor de k para decodificação.")
+            return
+        try:
+            k = int(k_str)
+            if k <= 0:
+                raise ValueError
+        except ValueError:
+            messagebox.showerror("Erro", "O valor de k deve ser um número inteiro positivo.")
+            return
+
     # Check the action: encoding or decoding
     if acao == "codificar":
-        # Ensure the user is only allowed to decode after encoding
-        if current_algorithm:
-            messagebox.showerror("Erro", "Você precisa decodificar a mensagem antes de codificar uma nova.")
-            return
 
         # Encode the message using the selected algorithm
         if algoritmo == "Golomb":
@@ -54,35 +60,34 @@ def executar_opcao(algoritmo, acao):
 
         # Store the encoded message and algorithm for later decoding
         encoded_message = resultado_codificado
-        current_algorithm = algoritmo
 
-        historico.append(f"Codificado ({algoritmo}): {resultado_codificado}")
-        copiar_button.config(command=lambda: copiar_para_clipboard(resultado_codificado))
+        # Update history with encoded message and k if Golomb
+        if algoritmo == "Golomb":
+            historico.append(f"Codificado ({algoritmo}, k={golomb_k}): {resultado_codificado}")
+        else:
+            historico.append(f"Codificado ({algoritmo}): {resultado_codificado}")
 
     elif acao == "decodificar":
-        # Ensure the user decodes using the same algorithm
-        if current_algorithm is None:
-            messagebox.showerror("Erro", "Nenhuma mensagem foi codificada.")
-            return
-        if algoritmo != current_algorithm:
-            messagebox.showerror("Erro", f"Você precisa decodificar com o algoritmo {current_algorithm}.")
+
+        # Check if Huffman root exists for Huffman decoding
+        if algoritmo == "Huffman" and not huffman_root:
+            messagebox.showerror("Erro", "Você deve codificar com Huffman antes de decodificar.")
             return
 
         # Decode the message using the stored algorithm-specific data
-        if current_algorithm == "Golomb":
-            resultado_decodificado = golomb.golombDecoder(mensagem, golomb_k)
-        elif current_algorithm == "Elias-Gamma":
+        if algoritmo == "Golomb":
+            resultado_decodificado = golomb.golombDecoder(mensagem, k)
+        elif algoritmo == "Elias-Gamma":
             resultado_decodificado = elias.EliasGammaDecoder(mensagem)
-        elif current_algorithm == "Fibonacci":
+        elif algoritmo == "Fibonacci":
             resultado_decodificado = fibo.FibonacciDecoder(mensagem)
-        elif current_algorithm == "Huffman":
+        elif algoritmo == "Huffman":
             resultado_decodificado = huff.HuffmanDecoder(mensagem, huffman_root)
 
         historico.append(f"Decodificado ({algoritmo}): {resultado_decodificado}")
 
         # Reset after decoding
         encoded_message = ""
-        current_algorithm = None
         golomb_k = None
         huffman_root = None
 
@@ -93,16 +98,29 @@ def executar_opcao(algoritmo, acao):
         historico_texto.insert(tk.END, entrada + "\n")
     historico_texto.config(state=tk.DISABLED)
 
+# Function to update the state of k_entry based on algorithm and action
+def atualizar_interface(*args):
+    algoritmo = algoritmo_var.get()
+    acao = acao_var.get()
+
+    if algoritmo == "Golomb" and acao == "decodificar":
+        entrada_k_label.config(state=tk.NORMAL)
+        entrada_k.config(state=tk.NORMAL)
+    else:
+        entrada_k_label.config(state=tk.DISABLED)
+        entrada_k.delete(0, tk.END)
+        entrada_k.config(state=tk.DISABLED)
+
 # Create the Tkinter interface
 janela = tk.Tk()
 janela.title("Codificador e Decodificador")
 
 # Message entry field
 entrada_label = tk.Label(janela, text="Digite sua mensagem:")
-entrada_label.pack()
+entrada_label.pack(pady=(10, 0))
 
 entrada_mensagem = tk.Entry(janela, width=50)
-entrada_mensagem.pack()
+entrada_mensagem.pack(pady=(0, 10))
 
 # Buttons to choose the algorithm and action
 algoritmo_var = tk.StringVar(value="Golomb")
@@ -111,24 +129,30 @@ algoritmo_menu.pack()
 
 acao_var = tk.StringVar(value="codificar")
 acao_menu = tk.OptionMenu(janela, acao_var, "codificar", "decodificar")
-acao_menu.pack()
+acao_menu.pack(pady=(5, 10))
+
+# Label and entry for k (initially disabled)
+entrada_k_label = tk.Label(janela, text="Digite o valor de k:")
+entrada_k_label.pack()
+entrada_k = tk.Entry(janela, width=20, state=tk.DISABLED)
+entrada_k.pack(pady=(0, 10))
 
 # Execute button
 executar_button = tk.Button(janela, text="Executar", command=lambda: executar_opcao(algoritmo_var.get(), acao_var.get()))
 executar_button.pack()
 
-# Button to copy results
-copiar_button = tk.Button(janela, text="Copiar", state=tk.NORMAL)
-copiar_button.pack()
-
 # Widget to display history
 historico_label = tk.Label(janela, text="Histórico:")
-historico_label.pack()
+historico_label.pack(pady=(10, 0))
 historico_texto = tk.Text(janela, wrap=tk.WORD, height=10, width=50, state=tk.DISABLED)
-historico_texto.pack()
+historico_texto.pack(pady=(0, 10))
 
 # List to store history
 historico = []
+
+# Bind the update function to changes in algorithm and action
+algoritmo_var.trace_add('write', atualizar_interface)
+acao_var.trace_add('write', atualizar_interface)
 
 # Initialize the interface loop
 janela.mainloop()
