@@ -73,7 +73,7 @@ def executar_opcao(algoritmo, acao):
         if algoritmo == "Huffman" and not huffman_root:
             messagebox.showerror("Erro", "Você deve codificar com Huffman antes de decodificar.")
             return
-
+    
         # Decode the message using the stored algorithm-specific data
         if algoritmo == "Golomb":
             resultado_decodificado = golomb.golombDecoder(mensagem, k)
