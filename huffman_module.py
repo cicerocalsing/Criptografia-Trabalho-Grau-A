@@ -3,19 +3,10 @@ from collections import Counter
 
 class Node: 
     def __init__(self, frequencia, simbolo, esquerda=None, direita=None): 
-        # Frequency of symbol 
-        self.frequencia = frequencia 
-
-        # Symbol name (character). For internal nodes, this can be None or a combined string
+        self.frequencia = frequencia
         self.simbolo = simbolo 
-
-        # Node left of current node 
-        self.esquerda = esquerda 
-
-        # Node right of current node 
-        self.direita = direita 
-
-        # Tree direction (0/1) 
+        self.esquerda = esquerda
+        self.direita = direita
         self.peso = '' 
 
     def __lt__(self, nxt): 
@@ -34,48 +25,25 @@ class Huffman:
             print(f"Character: '{char}' Frequency: {freq}")
 
         nodes = []
-
-        # Initialize the heap with leaf nodes
         print("\nInitializing heap with nodes:")
         for i in range(len(charsArray)):
             node = Node(freqChars[i], charsArray[i])
             heapq.heappush(nodes, node)
             print(f"Pushed to heap: {node}")
-        print("\nHeap after initialization:")
-        print(nodes)
 
-        isFirstTimeRunning = True
-
-        # Build the Huffman tree
         print("\nBuilding the Huffman tree:")
         while len(nodes) > 1:
-            no1 = heapq.heappop(nodes)
+            no1 = heapq.heappop(nodes)  # Pop the two nodes with the smallest frequencies
             no2 = heapq.heappop(nodes)
 
-            if(isFirstTimeRunning):
-                if no1.frequencia > no2.frequencia:
-                    noEsquerda = no1
-                    noDireita = no2
-                else:
-                    noEsquerda = no2
-                    noDireita = no1
-                isFirstTimeRunning = False
-            else:
-                noEsquerda = no1
-                noDireita = no2
-
-            print(f"\nPopped from heap: Left Node: {noEsquerda}, Right Node: {noDireita}")
-
-            # Assign weights based on direction
-            noEsquerda.peso = '0'
-            noDireita.peso = '1'
-            print(f"Assigned peso '0' to {noEsquerda.simbolo} and '1' to {noDireita.simbolo}")
+            # Assign nodes to left and right
+            noEsquerda = no1
+            noDireita = no2
 
             # Combine nodes
             novoNo = Node(noEsquerda.frequencia + noDireita.frequencia, noEsquerda.simbolo + noDireita.simbolo, noEsquerda, noDireita)
             heapq.heappush(nodes, novoNo)
-            print(f"Created new node: {novoNo} and pushed to heap")
-            print(f"Current heap: {nodes}")
+            print(f"Combined nodes: {noEsquerda.simbolo} and {noDireita.simbolo}, new node: {novoNo.simbolo} with freq: {novoNo.frequencia}")
 
         # The remaining node is the root of the Huffman tree
         raiz = nodes[0]
@@ -88,6 +56,10 @@ class Huffman:
         for char in huffmanCode:
             print(f"Character: '{char}' Code: {huffmanCode[char]}")
 
+        # Display the Huffman Tree with 0s and 1s
+        print("\nDisplaying Huffman Tree:")
+        self.printStyledTree(raiz, "", True)
+
         # Encode the message
         encodedMessage = ''.join([huffmanCode[char] for char in mensagem])
         print(f"\nEncoded Message: {encodedMessage}")
@@ -97,7 +69,7 @@ class Huffman:
     def gerarCodigo(self, node, currentCode, huffmanCode):
         # If it's a leaf node, assign the code
         if not node.esquerda and not node.direita:
-            huffmanCode[node.simbolo] = currentCode or '0'  # Assign '0' if tree has only one character
+            huffmanCode[node.simbolo] = currentCode or '0'
             return
 
         # Traverse left
@@ -108,6 +80,25 @@ class Huffman:
         if node.direita:
             self.gerarCodigo(node.direita, currentCode + '1', huffmanCode)
 
+    def printStyledTree(self, node, indent="", last=True):
+        if node is not None:
+            # Draw the tree with frequency and symbol for each node
+            if last:
+                print(indent + "└── ", end="")
+                indent += "    "
+            else:
+                print(indent + "├── ", end="")
+                indent += "│   "
+
+            if node.simbolo and len(node.simbolo) == 1:  # Leaf node
+                print(f"Symbol: '{node.simbolo}', Freq: {node.frequencia}")
+            else:
+                print(f"Freq: {node.frequencia}")
+
+            # Traverse left and right children
+            self.printStyledTree(node.esquerda, indent, False)
+            self.printStyledTree(node.direita, indent, True)
+
     def HuffmanDecoder(self, encodedMessage, raiz):
         decodedMessage = ''
         currentNode = raiz
@@ -117,11 +108,10 @@ class Huffman:
                 currentNode = currentNode.esquerda
             else:
                 currentNode = currentNode.direita
-            
-            # Se estivermos em uma folha, adicionamos o caractere à mensagem decodificada
+
             if not currentNode.esquerda and not currentNode.direita:
                 decodedMessage += currentNode.simbolo
-                currentNode = raiz  # Retorna para a raiz para decodificar o próximo caractere
+                currentNode = raiz  # Return to the root to decode the next character
 
         return decodedMessage
 
