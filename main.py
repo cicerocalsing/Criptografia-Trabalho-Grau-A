@@ -5,19 +5,17 @@ from fibonacci_module import Fibonacci
 from golomb_module import Golomb
 from huffman_module import Huffman
 
-# Create instances of the encoding classes
 golomb = Golomb()
 elias = EliasGamma()
 huff = Huffman()
 fibo = Fibonacci()
 
-# Global variables to store the encoded message and required info for decoding
 encoded_message = ""
 current_algorithm = None
 golomb_k = None
 huffman_root = None
 
-# Function for encoding/decoding and updating history
+
 def executar_opcao(algoritmo, acao):
     global encoded_message, current_algorithm, golomb_k, huffman_root
 
@@ -30,7 +28,7 @@ def executar_opcao(algoritmo, acao):
     resultado_codificado = ""
     resultado_decodificado = ""
 
-    # Initialize k if needed
+    # guardar o k em caso necessario (decode golomb)
     k = None
     if algoritmo == "Golomb" and acao == "decodificar":
         k_str = entrada_k.get().strip()
@@ -45,10 +43,8 @@ def executar_opcao(algoritmo, acao):
             messagebox.showerror("Erro", "O valor de k deve ser um número inteiro positivo.")
             return
 
-    # Check the action: encoding or decoding
     if acao == "codificar":
 
-        # Encode the message using the selected algorithm
         if algoritmo == "Golomb":
             resultado_codificado, golomb_k = golomb.golombEncoder(mensagem)
         elif algoritmo == "Elias-Gamma":
@@ -58,10 +54,10 @@ def executar_opcao(algoritmo, acao):
         elif algoritmo == "Huffman":
             resultado_codificado, huffman_root = huff.HuffmanEncoder(mensagem)
 
-        # Store the encoded message and algorithm for later decoding
+        # guardar a mensagem codificada
         encoded_message = resultado_codificado
 
-        # Update history with encoded message and k if Golomb
+        # ao atualizar historico, verificar se eh golomb ou nao, e assim, adicionar o K junto
         if algoritmo == "Golomb":
             historico.append(f"Codificado ({algoritmo}, k={golomb_k}): {resultado_codificado}")
         else:
@@ -69,12 +65,11 @@ def executar_opcao(algoritmo, acao):
 
     elif acao == "decodificar":
 
-        # Check if Huffman root exists for Huffman decoding
+        # root existe para decodificar?
         if algoritmo == "Huffman" and not huffman_root:
             messagebox.showerror("Erro", "Você deve codificar com Huffman antes de decodificar.")
             return
-    
-        # Decode the message using the stored algorithm-specific data
+
         if algoritmo == "Golomb":
             resultado_decodificado = golomb.golombDecoder(mensagem, k)
         elif algoritmo == "Elias-Gamma":
@@ -86,19 +81,19 @@ def executar_opcao(algoritmo, acao):
 
         historico.append(f"Decodificado ({algoritmo}): {resultado_decodificado}")
 
-        # Reset after decoding
+        # resetando variaveis para proxima rodada
         encoded_message = ""
         golomb_k = None
         huffman_root = None
 
-    # Update the history in the interface
+    # atualizar o historico
     historico_texto.config(state=tk.NORMAL)
     historico_texto.delete(1.0, tk.END)
     for entrada in historico:
         historico_texto.insert(tk.END, entrada + "\n")
     historico_texto.config(state=tk.DISABLED)
 
-# Function to update the state of k_entry based on algorithm and action
+# funcao usada para atualizar a interface -> isso basicamente existe para habilitar/desabilitar o k quando necessario (decode de golomb)
 def atualizar_interface(*args):
     algoritmo = algoritmo_var.get()
     acao = acao_var.get()
@@ -111,48 +106,46 @@ def atualizar_interface(*args):
         entrada_k.delete(0, tk.END)
         entrada_k.config(state=tk.DISABLED)
 
-# Create the Tkinter interface
+# aqui definimos a interface (titulo)
 janela = tk.Tk()
 janela.title("Codificador e Decodificador")
 
-# Message entry field
+# definimos o label da entrada de texto e onde ficara o texto digitado (variavel)
 entrada_label = tk.Label(janela, text="Digite sua mensagem:")
 entrada_label.pack(pady=(10, 0))
-
 entrada_mensagem = tk.Entry(janela, width=50)
 entrada_mensagem.pack(pady=(0, 10))
 
-# Buttons to choose the algorithm and action
+# definindo botoes de selecao de algoritmo e tambem de codificacao/decodificao
 algoritmo_var = tk.StringVar(value="Golomb")
 algoritmo_menu = tk.OptionMenu(janela, algoritmo_var, "Golomb", "Elias-Gamma", "Fibonacci", "Huffman")
 algoritmo_menu.pack()
-
 acao_var = tk.StringVar(value="codificar")
 acao_menu = tk.OptionMenu(janela, acao_var, "codificar", "decodificar")
 acao_menu.pack(pady=(5, 10))
 
-# Label and entry for k (initially disabled)
+# definindo o label e tambem a variavel que receberá o K quando necessario
 entrada_k_label = tk.Label(janela, text="Digite o valor de k:")
 entrada_k_label.pack()
 entrada_k = tk.Entry(janela, width=20, state=tk.DISABLED)
 entrada_k.pack(pady=(0, 10))
 
-# Execute button
+# o que acontece ao executar o botao
 executar_button = tk.Button(janela, text="Executar", command=lambda: executar_opcao(algoritmo_var.get(), acao_var.get()))
 executar_button.pack()
 
-# Widget to display history
+# definindo o label do historico e tambem a variavel do mesmo
 historico_label = tk.Label(janela, text="Histórico:")
 historico_label.pack(pady=(10, 0))
 historico_texto = tk.Text(janela, wrap=tk.WORD, height=10, width=50, state=tk.DISABLED)
 historico_texto.pack(pady=(0, 10))
 
-# List to store history
+# lista do historico
 historico = []
 
-# Bind the update function to changes in algorithm and action
+# bind para toda vez que mudarmos o algoritmo ou a acao, atualizar a interface
 algoritmo_var.trace_add('write', atualizar_interface)
 acao_var.trace_add('write', atualizar_interface)
 
-# Initialize the interface loop
+# comecar o loop da interface
 janela.mainloop()
