@@ -4,11 +4,13 @@ from eliasgamma_module import EliasGamma
 from fibonacci_module import Fibonacci
 from golomb_module import Golomb
 from huffman_module import Huffman
+from repeticao_module import RepeticaoRi
 
 golomb = Golomb()
 elias = EliasGamma()
 huff = Huffman()
 fibo = Fibonacci()
+repet = RepeticaoRi()
 
 encoded_message = ""
 current_algorithm = None
@@ -53,6 +55,8 @@ def executar_opcao(algoritmo, acao):
             resultado_codificado = fibo.FibonacciEncoder(mensagem)
         elif algoritmo == "Huffman":
             resultado_codificado, huffman_root = huff.HuffmanEncoder(mensagem)
+        elif algoritmo == "Repeticao Ri3":
+            resultado_codificado = repet.Encoder(mensagem)
 
         # guardar a mensagem codificada
         encoded_message = resultado_codificado
@@ -78,6 +82,8 @@ def executar_opcao(algoritmo, acao):
             resultado_decodificado = fibo.FibonacciDecoder(mensagem)
         elif algoritmo == "Huffman":
             resultado_decodificado = huff.HuffmanDecoder(mensagem, huffman_root)
+        elif algoritmo == "Repeticao Ri3":
+            resultado_decodificado = repet.Decoder(mensagem)
 
         historico.append(f"Decodificado ({algoritmo}): {resultado_decodificado}")
 
@@ -118,7 +124,7 @@ entrada_mensagem.pack(pady=(0, 10))
 
 # definindo botoes de selecao de algoritmo e tambem de codificacao/decodificao
 algoritmo_var = tk.StringVar(value="Golomb")
-algoritmo_menu = tk.OptionMenu(janela, algoritmo_var, "Golomb", "Elias-Gamma", "Fibonacci", "Huffman")
+algoritmo_menu = tk.OptionMenu(janela, algoritmo_var, "Golomb", "Elias-Gamma", "Fibonacci", "Huffman", "Repeticao Ri3")
 algoritmo_menu.pack()
 acao_var = tk.StringVar(value="codificar")
 acao_menu = tk.OptionMenu(janela, acao_var, "codificar", "decodificar")
