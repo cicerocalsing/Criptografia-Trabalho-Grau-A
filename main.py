@@ -5,12 +5,14 @@ from fibonacci_module import Fibonacci
 from golomb_module import Golomb
 from huffman_module import Huffman
 from repeticao_module import RepeticaoRi
+from hamming_module import Hamming
 
 golomb = Golomb()
 elias = EliasGamma()
 huff = Huffman()
 fibo = Fibonacci()
 repet = RepeticaoRi()
+hamming = Hamming()
 
 encoded_message = ""
 current_algorithm = None
@@ -57,6 +59,8 @@ def executar_opcao(algoritmo, acao):
             resultado_codificado, huffman_root = huff.HuffmanEncoder(mensagem)
         elif algoritmo == "Repeticao Ri3":
             resultado_codificado = repet.Encoder(mensagem)
+        elif algoritmo == "Hamming":
+            resultado_codificado = hamming.HammingEncoder(mensagem)
 
         # guardar a mensagem codificada
         encoded_message = resultado_codificado
@@ -68,8 +72,6 @@ def executar_opcao(algoritmo, acao):
             historico.append(f"Codificado ({algoritmo}): {resultado_codificado}")
 
     elif acao == "decodificar":
-
-        # root existe para decodificar?
         if algoritmo == "Huffman" and not huffman_root:
             messagebox.showerror("Erro", "Você deve codificar com Huffman antes de decodificar.")
             return
@@ -84,13 +86,23 @@ def executar_opcao(algoritmo, acao):
             resultado_decodificado = huff.HuffmanDecoder(mensagem, huffman_root)
         elif algoritmo == "Repeticao Ri3":
             resultado_decodificado = repet.Decoder(mensagem)
+        elif algoritmo == "Hamming":
+            resultado_decodificado, erro = hamming.HammingDecoder(mensagem)
 
+            # Tratamento de erros específicos
+            if erro == -1:  # Erro múltiplo detectado
+                messagebox.showwarning("Erro Múltiplo", "Erro múltiplo detectado, impossível decodificar a mensagem. Por favor, envie a mensagem novamente!")
+                return
+            elif erro:  # Erro simples corrigido
+                historico.append(f"Aviso ({algoritmo}): Um erro simples foi identificado e corrigido.")
+
+        # Adicionar a mensagem decodificada ao histórico
         historico.append(f"Decodificado ({algoritmo}): {resultado_decodificado}")
 
-        # resetando variaveis para proxima rodada
         encoded_message = ""
         golomb_k = None
         huffman_root = None
+
 
     # atualizar o historico
     historico_texto.config(state=tk.NORMAL)
@@ -124,7 +136,7 @@ entrada_mensagem.pack(pady=(0, 10))
 
 # definindo botoes de selecao de algoritmo e tambem de codificacao/decodificao
 algoritmo_var = tk.StringVar(value="Golomb")
-algoritmo_menu = tk.OptionMenu(janela, algoritmo_var, "Golomb", "Elias-Gamma", "Fibonacci", "Huffman", "Repeticao Ri3")
+algoritmo_menu = tk.OptionMenu(janela, algoritmo_var, "Golomb", "Elias-Gamma", "Fibonacci", "Huffman", "Repeticao Ri3", "Hamming")
 algoritmo_menu.pack()
 acao_var = tk.StringVar(value="codificar")
 acao_menu = tk.OptionMenu(janela, acao_var, "codificar", "decodificar")
